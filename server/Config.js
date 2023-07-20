@@ -4,7 +4,7 @@
 const CONFIG = {
   // add sheet information here such as Sheet ID and sheet Name
   sheet_id: PropertiesService.getScriptProperties().getProperties()['SHEET_ID'],
-  sheet_name: ' Drop-off for Review',
+  sheet_name: 'Approved Library',
   // if your sheet DOES NOT have the column headers as the FIRST row (sometimes sheets will have a banner or information), you must proivde how many rows to SKIP until the headers are reached
   /*** Default value will be 0 ***/
   skip: 1,
@@ -18,6 +18,7 @@ const CONFIG = {
     'Date Added': 'date_added',
     'Last Updated': 'last_updated',
     'Video File': 'video_file',
+    'FW Title': 'video_title',
     'Thumbnail Image': 'image',
     'Working Files': 'working_files',
     'PSD/MOGRT': 'file_type',

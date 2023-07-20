@@ -16,20 +16,23 @@
     <?!= HtmlService.createHtmlOutputFromFile("app.css").getContent(); ?>
   </head>
   <body>
-    <h1 class="app_header container">Video Gallery</h1>
     <main id="app_root" class="container">
-      <module-video-nav></module-video-nav>
-      <div class="app_content">
-        <div class="content_container">
-          <div>Loading, Please Wait...</div>
+      <h1 class="app_header">Video Gallery</h1>
+      <div class="app_container">
+        <module-video-nav></module-video-nav>
+        <div class="app_content">
+          <div class="content_container">
+            <div>Loading, Please Wait...</div>
+          </div>
         </div>
       </div>
+      <!-- loader -->
     </main>
-
-    <script>
-      const APP_DATA = <?!= JSON.stringify(data) ?>;
-    </script>
     <?!= HtmlService.createHtmlOutputFromFile("Components.js").getContent(); ?>
-    <?!= HtmlService.createHtmlOutputFromFile("index.js").getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile("App.js").getContent(); ?>
+     <script>
+      const APP_DATA = <?!= JSON.stringify(data) ?>;
+      const app = new App(APP_DATA);
+    </script>
   </body>
 </html>

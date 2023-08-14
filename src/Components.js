@@ -23,9 +23,6 @@ class VideoCard extends HTMLElement {
     const pauseButton = this.querySelector('#pause');
     const video = this.querySelector('video');
     const card_labels = this.querySelector('.card_labels');
-    const img_height_ref = this.querySelector(".card_image").clientHeight;
-    const offset = 2;
-    let set_height_flag = false;
 
     if (this._video_src.length < 1) {
       this._missing_src = true;
@@ -36,14 +33,7 @@ class VideoCard extends HTMLElement {
 
     // Add event listener for play button click
     playButton.addEventListener('click', () => {
-      //! The video height will auto adjust after video load, 
-      //! we need to prevent this by forcing its height to be the same as the thumbnail image
-      if (!set_height_flag) {
-        set_height_flag = true;
-        video.style.height = `${img_height_ref - offset}px`;
-      }
       // set has played to true to remove thumbnail
-      this.remove_thumbnail();
       this.play(video);
     });
 
@@ -121,14 +111,6 @@ class VideoCard extends HTMLElement {
     this.querySelector('#play').classList.toggle('hidden');
   }
 
-  // removes video thumbnail after initla playback
-  remove_thumbnail() {
-    const thumbnail = this.querySelector("img.card_image");
-    if (thumbnail !== null) {
-      thumbnail.style.opacity = 0;
-    }
-  }
-
   // determines whther to use provided thumbail or a fallback thumbnail
   handle_thumbnmail() {
     if (this._thumbnail.length <= 1) {
@@ -166,9 +148,9 @@ class VideoCard extends HTMLElement {
               position: relative;
             }
             ${module} video {
-                width: 100%;
-                height: auto;
-                object-fit: fill;
+                width: 100% !important;
+                height: auto !important;
+                max-height: 201px;
             }
             ${module} .icon {
                 color: black;
@@ -334,8 +316,8 @@ class VideoCard extends HTMLElement {
         ${this.styles}
          <div class="module_card" id="module_card_${this.id}">
             <div class="card_thumbnail ${this._video_src.length < 1 ? 'disabled' : ""}">
-                <video id="video_${this.id}"></video>
-                <img class="card_image" src="${this._thumbnail}" alt="video thumbnail placeholer" />
+                <video poster=${this._thumbnail} muted id="video_${this.id}"></video>
+                <!-- <img class="card_image" src="${this._thumbnail}" alt="video thumbnail placeholer" /> -->
                 <div class="card_time">0:${this._duration}</div>
                 <i id="pause" class="fa-solid fa-pause icon hidden"></i>
                 <i id="play" class="fa-solid fa-play icon"></i>
@@ -401,7 +383,6 @@ class VideoNav extends HTMLElement {
         event.target.closest('.app_nav') &&
         !event.target.parentElement.classList.contains('dropdown-label')
       ) {
-        //console.log("An input change was detected!")
         // Access the target element and its value
         const targetElement = event.target;
         const targetValue = targetElement.value;

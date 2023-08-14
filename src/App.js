@@ -48,7 +48,6 @@ class App {
 
       return supported_video_ext.includes(`.${file_ext}`);
     });
-    console.log(this.app_data);
 
     this.app_data.forEach((d) => {
       d.video_file = d.video_file.replace('www.dropbox.com', 'dl.dropboxusercontent.com');

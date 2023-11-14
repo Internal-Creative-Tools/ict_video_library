@@ -41,12 +41,11 @@ class App {
 
     // remove data sets that don't have supporting extensions
     this.app_data = this.app_data.filter((d) => {
-      const input_string = d.video_file;
-      const substr_start = input_string.lastIndexOf(".") + 1;
-      const substr_end = input_string.lastIndexOf("?dl=0");
-      const file_ext = input_string.slice(substr_start, substr_end);
 
-      return supported_video_ext.includes(`.${file_ext}`);
+      //console.log(d);
+      const input_string = d.video_file.toLowerCase();
+
+      return supported_video_ext.some(ext => input_string.includes(ext));
     });
 
     this.app_data.forEach((d) => {
@@ -67,7 +66,7 @@ class App {
     });
 
 
-    this.all_labels.sort();
+   this.all_labels.sort();
 
    this.all_asset_options.sort((a,b) => a- b );
 
@@ -83,12 +82,6 @@ class App {
     this.video_container.innerHTML = '';
     const render_data = this.filter_data();
 
-    //  render_data.forEach((d, idx) => {
-    //         const card = document.createElement('module-audio');
-    //         d.id = idx;
-    //         card.data = d;
-    //         this.selector.appendChild(card);
-    //     });
 
     if (render_data.length > 0) {
       render_data.forEach((d, idx) => {
@@ -96,11 +89,6 @@ class App {
         d.id = idx;
         module.data = d;
         this.video_container.appendChild(module);
-
-        // this.video_container.insertAdjacentHTML(
-        //   'beforeend',
-        //   `<module-video id="${idx}" video_title="${video.video_title}" video_src="${video.video_file}" duration="${video.duration}" assets="${video.num_assets}" labels="${video.labels}" href="${video.working_files}" ${video.image !== '' && `thumbnail="${video.image}"`}></module-video>`
-        // );
       });
     } else {
       this.video_container.innerHTML += `<div class="no-video">Sorry, No Video Matches Your Input</div>`;
@@ -192,26 +180,6 @@ class App {
       quantity === "" || quantity === 0 ? true : d.num_assets === +quantity
     );
 
- 
-
-    // if (this.selected_labels.length > 0) {
-    //   data = data.filter((d) => {
-    //     let hasAllLabels = true;
-    //     this.selected_labels.forEach((label) => {
-    //       if (!d.labels.includes(label)) {
-    //         hasAllLabels = false;
-    //       }
-    //     });
-    //     return hasAllLabels;
-    //   });
-    // }
-
-    // this.handle_num_assets(data);
-    // data = data.filter((d) => {
-    //   const assets = this.form_data.quantity;
-    //   return assets === '0' || assets === 'Any' || assets === 0 || assets === '' || d.num_assets === +assets;
-    // });
-
     this.sort_date(data);
     return data;
   }
@@ -229,12 +197,13 @@ class App {
     }
 
     assets.unshift('Any');
-    //document.querySelector(this.DOM.MODULE_NAV).setAttribute('available_assets', assets);
   }
 
   sort_date(data) {
     const { sort } = this.form_data;
 
+    console.log(data);
+    console.log(`selected sort method: ${sort}`);
     switch (sort) {
       case 'new':
         data.sort((a, b) => new Date(b.date_added) - new Date(a.date_added));

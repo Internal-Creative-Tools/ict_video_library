@@ -41,8 +41,6 @@ class App {
 
     // remove data sets that don't have supporting extensions
     this.app_data = this.app_data.filter((d) => {
-
-      //console.log(d);
       const input_string = d.video_file.toLowerCase();
 
       return supported_video_ext.some(ext => input_string.includes(ext));
@@ -202,8 +200,6 @@ class App {
   sort_date(data) {
     const { sort } = this.form_data;
 
-    console.log(data);
-    console.log(`selected sort method: ${sort}`);
     switch (sort) {
       case 'new':
         data.sort((a, b) => new Date(b.date_added) - new Date(a.date_added));

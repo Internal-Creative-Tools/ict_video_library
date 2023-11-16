@@ -13,20 +13,16 @@ class VideoCard extends HTMLElement {
 
   constructor() {
     super();
-    this._video_src = this.getAttribute('video_src') || '';
-    this._thumbnail = this.getAttribute("thumbnail") || '';
-    this._duration = +this.getAttribute('duration') || '';
-    this._href = this.getAttribute('href') || '';
-    this.id = this.getAttribute('id') || '';
-    this._video_title = this.getAttribute('video_title') || false;
-    this.render();
+    this.MAX_LABEL_HEIGHT = 26;
   }
+
 
   connectedCallback() {
     // Get the play and pause buttons using their IDs
     const playButton = this.querySelector('#play');
     const pauseButton = this.querySelector('#pause');
     const video = this.querySelector('video');
+    const card_labels = this.querySelector('.card_labels');
 
     if (this._video_src.length < 1) {
       this._missing_src = true;
@@ -38,7 +34,6 @@ class VideoCard extends HTMLElement {
     // Add event listener for play button click
     playButton.addEventListener('click', () => {
       // set has played to true to remove thumbnail
-      this.remove_thumbnail();
       this.play(video);
     });
 
@@ -54,12 +49,27 @@ class VideoCard extends HTMLElement {
     });
     video.addEventListener('timeupdate', () => {
       const time = Math.round(video.duration) - Math.round(video.currentTime);
-      //console.log(time === true);
       this.querySelector('.module_card .card_time').innerText = `0:${ time ? String(time).padStart(2, '0') : this._duration}`;
     });
-    // video.addEventListener('loadeddata', () => {
-    //   this.querySelector('.module_card module-loader').style.display = "none";
-    // })
+
+    this.querySelector('.card_labels .label_cursor').addEventListener('click', function() {
+      this.classList.toggle('active');
+      card_labels.classList.toggle('active');
+    });
+
+     this.check_overflow();
+  }
+
+  set data (value) {
+    this._video_src = value.video_file || '';
+    this._thumbnail = value.image || '';
+    this._duration = +value.duration || '';
+    this._href = value.working_files|| '';
+    this.id = value.id || '';
+    this._labels = value.labels || '';
+    this._video_title = value.video_title || false;
+
+    this.render();
   }
 
   play(video) {
@@ -88,9 +98,9 @@ class VideoCard extends HTMLElement {
 
   // handles the loading animation and behavior on video player
   handle_loading(video) {
-    const loader = this.querySelector('.module_card module-loader #module__loader');
+    const loader = this.querySelector('module-loader #module__loader');
     loader.style.display = "flex";
-    video.addEventListener('loadeddata', () => {
+    video.addEventListener('loadeddata', function() {
       loader.style.display = "none";
     })
   }
@@ -99,14 +109,6 @@ class VideoCard extends HTMLElement {
   toggle_buttons() {
     this.querySelector('#pause').classList.toggle('hidden');
     this.querySelector('#play').classList.toggle('hidden');
-  }
-
-  // removes video thumbnail after initla playback
-  remove_thumbnail() {
-    const thumbnail = this.querySelector("img.card_image");
-    if (thumbnail !== null) {
-      thumbnail.remove();
-    }
   }
 
   // determines whther to use provided thumbail or a fallback thumbnail
@@ -121,6 +123,23 @@ class VideoCard extends HTMLElement {
     }
   }
 
+  render_labels() {
+    let html = '';
+    this._labels.forEach((label) => {
+      html += `<div class="label">${label}</div>`
+    });
+    return html;
+  }
+
+  check_overflow() {
+    const labels_container = this.querySelector('.card_labels');
+    const height = labels_container.scrollHeight;
+    if (height <= this.MAX_LABEL_HEIGHT) {
+      // hide dropdown
+      this.querySelector('.card_labels .label_cursor').classList.add('hidden');
+    }
+  }
+
   get styles() {
     const module = `.module_card#module_card_${this.id}`;
     return /*html*/ `
@@ -129,21 +148,24 @@ class VideoCard extends HTMLElement {
               position: relative;
             }
             ${module} video {
-                width: 100%;
-                height: auto;
-                max-height: 100%;
-                border-radius: 15px;
+                width: 100% !important;
+                height: auto !important;
+                max-height: 201px;
             }
             ${module} .icon {
-                color: white;
-                font-size: 4rem;
+                color: black;
+                background-color: white; 
+                border-radius: 50%;
+                font-size: 2rem;
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
                 display: none;
                 transition: var(--transition);
-
+                z-index: 2;
+                width: 60px;
+                height: 60px;
             }
             ${module} a {
                 color: black;
@@ -155,13 +177,27 @@ class VideoCard extends HTMLElement {
                 cursor: not-allowed;
             }
             ${module} .card_thumbnail {
-                border-radius: 15px;
                 position: relative;
-                height: 100%;
+                height: auto;
                 cursor: pointer;
+                transition: var(--transition);
+                max-height: 204px;
+                overflow: hidden;
+            }
+            ${module} .card_thumbnail:hover::before {
+                content: "";
+                width: 100%;
+                height: 99%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                background-color: rgba(0,0,0,0.3);
+                z-index: 1;
             }
             ${module} .card_thumbnail:hover .icon:not(.hidden) {
-                display: block;
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
             ${module} .card_thumbnail .card_time {
                 color: white;
@@ -181,6 +217,8 @@ class VideoCard extends HTMLElement {
             ${module} .card_link span {
                 flex: 2;
                 overflow: hidden;
+                font-size: 12px;
+                font-weight: 400;
                 max-height: 1.5rem;
                 text-overflow: ellipsis;
                 display: -webkit-box;
@@ -190,6 +228,8 @@ class VideoCard extends HTMLElement {
             ${module} .card_link a {
                 flex: 1;
                 text-align: right;
+                font-size: 12px;
+                font-weight: 400;
             }
             ${module} .card_link i {
                 margin-right: 0.5rem;
@@ -200,10 +240,43 @@ class VideoCard extends HTMLElement {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                border-radius: 15px;
             }
             ${module} .card_link .no_title {
               color: gray;
+            }
+            ${module} .card_labels {
+              display: flex;
+              gap: 0.5rem;
+              flex-wrap: wrap;
+              margin-top: 1rem;
+              overflow: hidden;
+              height: 100%;
+              max-height: 26px;
+              padding-right: 1.5rem;
+              position: relative;
+            }
+            ${module} .card_labels.active {
+              max-height: 100%;
+            }
+            ${module} .card_labels .label_cursor {
+              position: absolute;
+              right: 0px;
+              top: 0px;
+              transition: all ease 300ms;
+              cursor: pointer;
+            }
+            ${module} .card_labels .label_cursor.hidden {
+              display: none;
+            }
+            ${module} .card_labels .label_cursor.active {
+              transform: rotate(180deg);
+            }
+            ${module} .card_labels .label {
+              padding: 4px 8px;
+              background-color: #D9D9D9;
+              font-size: 12px;
+              font-weight: 400;
+              border-radius: 8px;
             }
             ${module} .card_thumbnail.disabled {
               cursor: not-allowed;
@@ -243,8 +316,8 @@ class VideoCard extends HTMLElement {
         ${this.styles}
          <div class="module_card" id="module_card_${this.id}">
             <div class="card_thumbnail ${this._video_src.length < 1 ? 'disabled' : ""}">
-                <video id="video_${this.id}"></video>
-                <img class="card_image" src="${this._thumbnail}" alt="video thumbnail placeholer" />
+                <video poster=${this._thumbnail} muted id="video_${this.id}"></video>
+                <!-- <img class="card_image" src="${this._thumbnail}" alt="video thumbnail placeholer" /> -->
                 <div class="card_time">0:${this._duration}</div>
                 <i id="pause" class="fa-solid fa-pause icon hidden"></i>
                 <i id="play" class="fa-solid fa-play icon"></i>
@@ -253,6 +326,14 @@ class VideoCard extends HTMLElement {
             <div class="card_link">
                 ${this._video_title ? `<span>${this._video_title}</span>` : "<span class='no_title'>Untitled</span>"}
                 <a href="${this._href}" class="${this._href.length < 1 ? 'disabled' : ''}" target="_blank"><i class="fa-solid fa-link"></i>Dropbox</a>
+            </div>
+            <div class="card_labels">
+              <div class="label_cursor">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9" fill="none">
+                  <path id="Arrow 6" d="M7.29289 8.70711C7.68342 9.09763 8.31658 9.09763 8.70711 8.70711L15.0711 2.34315C15.4616 1.95262 15.4616 1.31946 15.0711 0.928932C14.6805 0.538408 14.0474 0.538408 13.6569 0.928932L8 6.58579L2.34315 0.928932C1.95262 0.538408 1.31946 0.538408 0.928932 0.928932C0.538408 1.31946 0.538408 1.95262 0.928932 2.34315L7.29289 8.70711ZM7 7L7 8L9 8L9 7L7 7Z" fill="#424B5A"/>
+                </svg>
+              </div>
+              ${this.render_labels()}
             </div>
         </div>
         `;
@@ -302,7 +383,6 @@ class VideoNav extends HTMLElement {
         event.target.closest('.app_nav') &&
         !event.target.parentElement.classList.contains('dropdown-label')
       ) {
-        //console.log("An input change was detected!")
         // Access the target element and its value
         const targetElement = event.target;
         const targetValue = targetElement.value;
@@ -440,7 +520,6 @@ class VideoNav extends HTMLElement {
     if (li.length > 0) {
       li.forEach((el) =>
         el.addEventListener('click', () => {
-          //console.log("you clik me")
           this.querySelector('.app_nav .dropdown-list').classList.add('hidden');
           this.dropdown_input.value = el.innerText;
         })
@@ -519,7 +598,6 @@ class VideoNav extends HTMLElement {
       .app_nav .dropdown-input {
         height: 2rem;
         padding: 0 1rem;
-        border-radius: 15px;
         width: 100%;
         font-size: 16px;
         border: 1px solid black;
@@ -684,23 +762,86 @@ class Loader extends HTMLElement {
   get styles() {
     return /*html*/ `
     <style>
-    #module__loader {
-      background-color: #000000b0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
+   #module__loader {
       width: 100%;
-      z-index: 50;
-      top: 0;
-      left: 0;
+      height: 100%;
+      display: none;
       position: absolute;
-      border-radius: 15px;
+      background-color: rgba(0,0,0,0.6);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
 
-    #module__loader svg {
-      transform: scale(3);
+    #module__loader div {
+      width: 2%;
+      height: 11%;
+      background: #FFF;
+      position: absolute;
+      left: 49%;
+      top: 43%;
+      opacity: 0;
+      -webkit-border-radius: 50px;
+      -webkit-box-shadow: 0 0 3px rgba(0,0,0,0.2);
+      -webkit-animation: fade 1s linear infinite;
     }
+
+    @-webkit-keyframes fade {
+      from {opacity: 1;}
+      to {opacity: 0.25;}
+    }
+
+    #module__loader div.bar1 {
+      -webkit-transform:rotate(0deg) translate(0, -130%);
+      -webkit-animation-delay: 0s;
+    }    
+
+    #module__loader div.bar2 {
+      -webkit-transform:rotate(30deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.9167s;
+    }
+
+    #module__loader div.bar3 {
+      -webkit-transform:rotate(60deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.833s;
+    }
+    #module__loader div.bar4 {
+      -webkit-transform:rotate(90deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.7497s;
+    }
+    #module__loader div.bar5 {
+      -webkit-transform:rotate(120deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.667s;
+    }
+    #module__loader div.bar6 {
+      -webkit-transform:rotate(150deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.5837s;
+    }
+    #module__loader div.bar7 {
+      -webkit-transform:rotate(180deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.5s;
+    }
+    #module__loader div.bar8 {
+      -webkit-transform:rotate(210deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.4167s;
+    }
+    #module__loader div.bar9 {
+      -webkit-transform:rotate(240deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.333s;
+    }
+    #module__loader div.bar10 {
+      -webkit-transform:rotate(270deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.2497s;
+    }
+    #module__loader div.bar11 {
+      -webkit-transform:rotate(300deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.167s;
+    }
+    #module__loader div.bar12 {
+      -webkit-transform:rotate(330deg) translate(0, -130%); 
+      -webkit-animation-delay: -0.0833s;
+    }
+
     </style>
     `
   }
@@ -708,24 +849,19 @@ class Loader extends HTMLElement {
   get template() {
     return /*html*/`
     ${this.styles}
-      <div id="module__loader" title="7">
-        <svg version="1.1" id="Layer_1" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background: new 0 0 50 50" xml:space="preserve">
-          <rect x="0" y="10" width="4" height="10" fill="#f54036" opacity="0.2">
-            <animate attributeName="opacity" attributeType="XML" values="0.2; 1; .2" begin="0s" dur="0.6s" repeatCount="indefinite"></animate>
-            <animate attributeName="height" attributeType="XML" values="10; 20; 10" begin="0s" dur="0.6s" repeatCount="indefinite"></animate>
-            <animate attributeName="y" attributeType="XML" values="10; 5; 10" begin="0s" dur="0.6s" repeatCount="indefinite"></animate>
-          </rect>
-          <rect x="8" y="10" width="4" height="10" fill="#236dab" opacity="0.2">
-            <animate attributeName="opacity" attributeType="XML" values="0.2; 1; .2" begin="0.15s" dur="0.6s" repeatCount="indefinite"></animate>
-            <animate attributeName="height" attributeType="XML" values="10; 20; 10" begin="0.15s" dur="0.6s" repeatCount="indefinite"></animate>
-            <animate attributeName="y" attributeType="XML" values="10; 5; 10" begin="0.15s" dur="0.6s" repeatCount="indefinite"></animate>
-          </rect>
-          <rect x="16" y="10" width="4" height="10" fill="#07293a" opacity="0.2">
-            <animate attributeName="opacity" attributeType="XML" values="0.2; 1; .2" begin="0.3s" dur="0.6s" repeatCount="indefinite"></animate>
-            <animate attributeName="height" attributeType="XML" values="10; 20; 10" begin="0.3s" dur="0.6s" repeatCount="indefinite"></animate>
-            <animate attributeName="y" attributeType="XML" values="10; 5; 10" begin="0.3s" dur="0.6s" repeatCount="indefinite"></animate>
-          </rect>
-        </svg>
+      <div id="module__loader">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+        <div class="bar4"></div>
+        <div class="bar5"></div>
+        <div class="bar6"></div>
+        <div class="bar7"></div>
+        <div class="bar8"></div>
+        <div class="bar9"></div>
+        <div class="bar10"></div>
+        <div class="bar11"></div>
+        <div class="bar12"></div>
       </div>
     `
   }

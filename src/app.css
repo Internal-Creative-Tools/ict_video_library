@@ -1,12 +1,37 @@
 :root {
   --container: 1600px;
   --transition: all ease 300ms;
+  --text-gray: #505D68;
+  --text-light-gray: #A1AEB7;
+  --vector-gray: #424B5A;
+  --border: 1px solid var(--text-gray);
 }
 
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+h1 {
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--text-gray);
+}
+
+label {
+    color: var(--text-gray);
+    font-size: 16px;
+    font-weight: 400;
+}
+
+select {
+    appearance: none;
+}
+
+input:disabled {
+    background-color: transparent;
+    cursor: not-allowed;
 }
 
 /* utility class */
@@ -18,9 +43,16 @@
   width: 100%;
   margin: auto;
 }
+.input {
+    width: 263px;
+    height: 40px;
+    padding: 0 0.5rem;
+    border-radius: 4px;
+}
+
 /* main app styles */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
 }
 #app_root {
   padding: 0 2rem;
@@ -36,8 +68,9 @@ body {
 #app_root .app_container .app_content .content_container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 1rem;
+  grid-gap: 2rem;
   grid-template-rows: auto;
+  margin-bottom: 5rem;
 }
 #app_root .app_container .app_content .content_container .no-video {
   text-align: center;
@@ -45,6 +78,56 @@ body {
   font-size: 1.75rem;
   padding-top: 6rem;
 }
-#app_root .app_header {
+#app_root .app__header {
   padding-top: 5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#app_root .app__search {
+    border: var(--border);
+    padding: 10px 12px;
+    width: 262px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--vector-gray);
+    cursor: not-allowed;
+    border-radius: 4px;
+}
+
+#app_root .app__header .app__search input,
+#app_root .app__header .app__search input:focus {
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+#app_root .app__header .app__search i {
+    color: var(--vector-gray);
+}
+
+#app_root .input__sort {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    border: var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#app_root .dropdown__container {
+    position: relative;
+}
+#app_root .dropdown__container i {
+    position: absolute;
+    top: 12px;
+    left: 230px;
+}
+
+
+/* custom module colors */
+module-video .module_card .card_link span,
+module-video .module_card .card_link a {
+  color: #505D68 !important;
 }

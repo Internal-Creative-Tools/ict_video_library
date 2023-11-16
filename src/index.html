@@ -5,10 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -17,9 +14,29 @@
   </head>
   <body>
     <main id="app_root" class="container">
-      <h1 class="app_header">Video Gallery</h1>
+      <div class="app__header">
+        <h1 class="app_title">Video Gallery</h1>
+        <!-- search module here -->
+         <div class="app__search">
+              <input disabled type="text" name="search" placeholder="Search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+      </div>
       <div class="app_container">
-        <module-video-nav></module-video-nav>
+        <div class="app__input">
+            <div class="input__sort">
+            <label for="sort">Sort by</label>
+            <div class="dropdown__container">
+                <select class="input" name="sort" id="sort">
+                    <option value="new">Newest</option>
+                    <option value="oldest">Oldest</option>
+                </select>
+                <i class="fa-solid fa-caret-down"></i>
+            </div>
+          </div>
+          <module-filter></module-filter>
+        </div>
         <div class="app_content">
           <div class="content_container">
             <div>Loading, Please Wait...</div>
@@ -28,7 +45,9 @@
       </div>
       <!-- loader -->
     </main>
+    <!-- load all JS files here -->
     <?!= HtmlService.createHtmlOutputFromFile("Components.js").getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile("ModuleFilter.js").getContent(); ?>
     <?!= HtmlService.createHtmlOutputFromFile("App.js").getContent(); ?>
      <script>
       const APP_DATA = <?!= JSON.stringify(data) ?>;

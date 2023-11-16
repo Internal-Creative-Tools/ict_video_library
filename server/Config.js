@@ -22,10 +22,10 @@ const CONFIG = {
     'Thumbnail Image': 'image',
     'Working Files': 'working_files',
     'PSD/MOGRT': 'file_type',
-    Duration: 'duration',
+    'Duration': 'duration',
     'Asset Type': 'asset_type',
     '# of Assets': 'num_assets',
-    Labels: 'labels',
-    Notes: 'notes',
+    'Labels': 'labels',
+    'Notes': 'notes',
   },
 };

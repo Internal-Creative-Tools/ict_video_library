@@ -70,6 +70,7 @@ body {
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 2rem;
   grid-template-rows: auto;
+  margin-bottom: 5rem;
 }
 #app_root .app_container .app_content .content_container .no-video {
   text-align: center;

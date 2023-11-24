@@ -47,6 +47,8 @@ class App {
     });
 
     this.app_data.forEach((d) => {
+      // remove notes column unused
+      delete d.notes
       d.video_file = d.video_file.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       d.image = d.image.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       d.duration = d.duration.replace(/s/g, '');
@@ -62,6 +64,16 @@ class App {
           }
       }
     });
+
+      // remove data sets that have empty values 
+      this.app_data = this.app_data.filter((d) => {
+        for (let key in d) {
+          if (d[key] === "" || d[key] === [] || d[key] === null) {
+            return false;
+          }
+        }
+        return true;
+      })
 
 
    this.all_labels.sort();
